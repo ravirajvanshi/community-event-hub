@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Connect - Event Discovery Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        select, input {
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .event-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .event-image {
+            height: 200px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .event-content {
+            padding: 20px;
+        }
+
+        .event-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .event-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .event-detail {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .event-description {
+            color: #777;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .event-tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: #f0f2ff;
+            color: #667eea;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .social-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #667eea;
+            border: 1px solid #e1e5e9;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .attendance-count {
+            margin-left: auto;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .no-events {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            .stats {
+                flex-direction: column;
+            }
+
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌟 Community Connect</h1>
+            <p>Discover local events and build connections in your community</p>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="categoryFilter">Category</label>
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="social">Social & Networking</option>
+                    <option value="educational">Educational</option>
+                    <option value="fitness">Fitness & Wellness</option>
+                    <option value="arts">Arts & Culture</option>
+                    <option value="volunteer">Volunteer</option>
+                    <option value="family">Family & Kids</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="locationFilter">Location</label>
+                <select id="locationFilter">
+                    <option value="">All Locations</option>
+                    <option value="downtown">Downtown</option>
+                    <option value="westside">Westside</option>
+                    <option value="eastside">Eastside</option>
+                    <option value="northside">Northside</option>
+                    <option value="online">Online</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="dateFilter">Date</label>
+                <input type="date" id="dateFilter">
+            </div>
+            
+            <div class="filter-group">
+                <label for="searchFilter">Search</label>
+                <input type="text" id="searchFilter" placeholder="Search events...">
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalEvents">0</div>
+                <div class="stat-label">Total Events</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="attendingCount">0</div>
+                <div class="stat-label">You're Attending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="activeUsers">247</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+        </div>
+
+        <div class="events-grid" id="eventsGrid">
+            <!-- Events will be populated here -->
+        </div>
+
+        <div class="no-events" id="noEvents" style="display: none;">
+            <p>No events found matching your criteria. Try adjusting your filters!</p>
+        </div>
+    </div>
+
+    <script>
+        // Sample event data (in real app, this would come from API/scraping)
+        const sampleEvents = [
+            {
+                id: 1,
+                title: "Community Garden Workshop",
+                date: "2025-06-20",
+                time: "10:00 AM",
+                location: "downtown",
+                venue: "Central Park Community Garden",
+                category: "educational",
+                description: "Learn sustainable gardening techniques and connect with fellow green thumbs in our community.",
+                tags: ["gardening", "sustainability", "hands-on"],
+                attendees: 24,
+                isAttending: false,
+                icon: "🌱"
+            },
+            {
+                id: 2,
+                title: "Tech for Seniors Workshop",
+                date: "2025-06-21",
+                time: "2:00 PM",
+                location: "westside",
+                venue: "Westside Community Center",
+                category: "educational",
+                description: "Bridging the digital divide by teaching seniors essential technology skills.",
+                tags: ["technology", "seniors", "digital literacy"],
+                attendees: 18,
+                isAttending: true,
+                icon: "💻"
+            },
+            {
+                id: 3,
+                title: "Neighborhood Cleanup Day",
+                date: "2025-06-22",
+                time: "9:00 AM",
+                location: "eastside",
+                venue: "Eastside Park",
+                category: "volunteer",
+                description: "Join us for a community cleanup to beautify our neighborhood and protect the environment.",
+                tags: ["volunteer", "environment", "community"],
+                attendees: 42,
+                isAttending: false,
+                icon: "🧹"
+            },
+            {
+                id: 4,
+                title: "Cultural Food Festival",
+                date: "2025-06-23",
+                time: "11:00 AM",
+                location: "downtown",
+                venue: "City Square",
+                category: "arts",
+                description: "Celebrate diversity through food! Taste dishes from around the world and meet your neighbors.",
+                tags: ["food", "culture", "diversity"],
+                attendees: 156,
+                isAttending: true,
+                icon: "🍜"
+            },
+            {
+                id: 5,
+                title: "Morning Yoga in the Park",
+                date: "2025-06-24",
+                time: "7:00 AM",
+                location: "northside",
+                venue: "Northside Park",
+                category: "fitness",
+                description: "Start your day with mindfulness and movement in our beautiful community park.",
+                tags: ["yoga", "wellness", "morning"],
+                attendees: 31,
+                isAttending: false,
+                icon: "🧘"
+            },
+            {
+                id: 6,
+                title: "Family Game Night",
+                date: "2025-06-25",
+                time: "6:00 PM",
+                location: "westside",
+                venue: "Westside Library",
+                category: "family",
+                description: "Bring the whole family for an evening of board games, laughs, and new friendships.",
+                tags: ["family", "games", "social"],
+                attendees: 28,
+                isAttending: false,
+                icon: "🎲"
+            },
+            {
+                id: 7,
+                title: "Virtual Community Town Hall",
+                date: "2025-06-26",
+                time: "7:00 PM",
+                location: "online",
+                venue: "Zoom Meeting",
+                category: "social",
+                description: "Join our monthly town hall to discuss community issues and upcoming initiatives.",
+                tags: ["virtual", "governance", "discussion"],
+                attendees: 89,
+                isAttending: true,
+                icon: "🏛️"
+            },
+            {
+                id: 8,
+                title: "Art Gallery Opening",
+                date: "2025-06-27",
+                time: "5:00 PM",
+                location: "downtown",
+                venue: "Community Art Center",
+                category: "arts",
+                description: "Discover local artists and their work while mingling with fellow art enthusiasts.",
+                tags: ["art", "culture", "networking"],
+                attendees: 67,
+                isAttending: false,
+                icon: "🎨"
+            }
+        ];
+
+        let filteredEvents = [...sampleEvents];
+        let userAttendingEvents = new Set();
+
+        // Initialize attending events
+        sampleEvents.forEach(event => {
+            if (event.isAttending) {
+                userAttendingEvents.add(event.id);
+            }
+        });
+
+        function renderEvents() {
+            const eventsGrid = document.getElementById('eventsGrid');
+            const noEvents = document.getElementById('noEvents');
+            
+            if (filteredEvents.length === 0) {
+                eventsGrid.style.display = 'none';
+                noEvents.style.display = 'block';
+                return;
+            }
+
+            eventsGrid.style.display = 'grid';
+            noEvents.style.display = 'none';
+
+            eventsGrid.innerHTML = filteredEvents.map(event => `
+                <div class="event-card">
+                    <div class="event-image">
+                        ${event.icon}
+                    </div>
+                    <div class="event-content">
+                        <h3 class="event-title">${event.title}</h3>
+                        <div class="event-details">
+                            <div class="event-detail">
+                                <span>📅</span>
+                                <span>${formatDate(event.date)} at ${event.time}</span>
+                            </div>
+                            <div class="event-detail">
+                                <span>📍</span>
+                                <span>${event.venue}</span>
+                            </div>
+                        </div>
+                        <p class="event-description">${event.description}</p>
+                        <div class="event-tags">
+                            ${event.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                        <div class="social-actions">
+                            <button class="btn ${userAttendingEvents.has(event.id) ? 'btn-secondary' : 'btn-primary'}" 
+                                    onclick="toggleAttendance(${event.id})">
+                                ${userAttendingEvents.has(event.id) ? 'Cancel' : 'Attend'}
+                            </button>
+                            <button class="btn btn-secondary" onclick="shareEvent(${event.id})">
+                                Share
+                            </button>
+                            <span class="attendance-count">${event.attendees} attending</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            updateStats();
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('totalEvents').textContent = filteredEvents.length;
+            document.getElementById('attendingCount').textContent = userAttendingEvents.size;
+        }
+
+        function toggleAttendance(eventId) {
+            const event = sampleEvents.find(e => e.id === eventId);
+            if (userAttendingEvents.has(eventId)) {
+                userAttendingEvents.delete(eventId);
+                event.attendees--;
+            } else {
+                userAttendingEvents.add(eventId);
+                event.attendees++;
+            }
+            renderEvents();
+        }
+
+        function shareEvent(eventId) {
+            const event = sampleEvents.find(e => e.id === eventId);
+            if (navigator.share) {
+                navigator.share({
+                    title: event.title,
+                    text: event.description,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback for browsers without Web Share API
+                const url = `${window.location.href}?event=${eventId}`;
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('Event link copied to clipboard!');
+                });
+            }
+        }
+
+        function applyFilters() {
+            const category = document.getElementById('categoryFilter').value;
+            const location = document.getElementById('locationFilter').value;
+            const date = document.getElementById('dateFilter').value;
+            const search = document.getElementById('searchFilter').value.toLowerCase();
+
+            filteredEvents = sampleEvents.filter(event => {
+                const matchesCategory = !category || event.category === category;
+                const matchesLocation = !location || event.location === location;
+                const matchesDate = !date || event.date === date;
+                const matchesSearch = !search || 
+                    event.title.toLowerCase().includes(search) ||
+                    event.description.toLowerCase().includes(search) ||
+                    event.tags.some(tag => tag.toLowerCase().includes(search));
+
+                return matchesCategory && matchesLocation && matchesDate && matchesSearch;
+            });
+
+            renderEvents();
+        }
+
+        // Event listeners for filters
+        document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+        document.getElementById('locationFilter').addEventListener('change', applyFilters);
+        document.getElementById('dateFilter').addEventListener('change', applyFilters);
+        document.getElementById('searchFilter').addEventListener('input', applyFilters);
+
+        // Initialize the app
+        renderEvents();
+    </script>
+</body>
+</html>
